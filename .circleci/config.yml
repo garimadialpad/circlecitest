@@ -1,8 +1,51 @@
 version: 2.1
+orbs:
+  gcp-gke: circleci/gcp-gke@1.0.4
+  helm: circleci/helm@1.0.0
 jobs:
+  install-helm-chart:
+    executor: gcp-gke/python
+    parameters:
+      cluster-name:
+        description: Cluster name
+        type: string
+    steps:
+      - gcp-gke/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - helm/install-helm-chart:
+          chart: stable/grafana
+          release-name: grafana-release
+  install-helm-on-cluster:
+    executor: gcp-gke/python
+    parameters:
+      cluster-name:
+        description: Cluster name
+        type: string
+    steps:
+      - gcp-gke/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - helm/install-helm-on-cluster:
+          enable-cluster-wide-admin-access: true
   build:
     docker: 
       - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
+  
+workflows:
+  deployment:
+    jobs:
+      - gcp-gke/create-cluster:
+          cluster-name: test-cluster
+      - install-helm-on-cluster:
+          cluster-name: test-cluster
+          requires:
+            - gcp-gke/create-cluster
+      - install-helm-chart:
+          cluster-name: test-cluster
+          requires:
+            - install-helm-on-cluster
+          wait: true
+ 
