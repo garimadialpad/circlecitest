@@ -11,7 +11,7 @@ jobs:
         type: string
     steps:
       - gcp-gke/update-kubeconfig-with-credentials:
-          cluster-name: << parameters.cluster-name >>
+          cluster: << parameters.cluster-name >>
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: grafana-release
@@ -23,7 +23,7 @@ jobs:
         type: string
     steps:
       - gcp-gke/update-kubeconfig-with-credentials:
-          cluster-name: << parameters.cluster-name >>
+          cluster: << parameters.cluster-name >>
           install-kubectl: true
       - helm/install-helm-on-cluster:
           enable-cluster-wide-admin-access: true
