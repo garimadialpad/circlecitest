@@ -10,7 +10,7 @@ jobs:
         description: Cluster name
         type: string
     steps:
-      - gcp-gke/update-kubeconfig-with-authenticator:
+      - gcp-gke/update-kubeconfig-with-credentials:
           cluster-name: << parameters.cluster-name >>
       - helm/install-helm-chart:
           chart: stable/grafana
@@ -22,7 +22,7 @@ jobs:
         description: Cluster name
         type: string
     steps:
-      - gcp-gke/update-kubeconfig-with-authenticator:
+      - gcp-gke/update-kubeconfig-with-credentials:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
       - helm/install-helm-on-cluster:
