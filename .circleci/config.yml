@@ -38,7 +38,7 @@ workflows:
   deployment:
     jobs:
       - gcp-gke/create-cluster:
-          cluster-name: test-cluster
+          cluster: gcp-testing
       - install-helm-on-cluster:
           cluster-name: test-cluster
           requires:
