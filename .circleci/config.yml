@@ -1,51 +1,13 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
+# Use a package of configuration called an orb.
 orbs:
-  gcp-gke: circleci/gcp-gke@1.0.4
-  helm: circleci/helm@1.0.0
-jobs:
-  install-helm-chart:
-    executor: gcp-gke/python
-    parameters:
-      cluster-name:
-        description: Cluster name
-        type: string
-    steps:
-      - gcp-gke/update-kubeconfig-with-credentials:
-          cluster: << parameters.cluster-name >>
-      - helm/install-helm-chart:
-          chart: stable/grafana
-          release-name: grafana-release
-  install-helm-on-cluster:
-    executor: gcp-gke/python
-    parameters:
-      cluster-name:
-        description: Cluster name
-        type: string
-    steps:
-      - gcp-gke/update-kubeconfig-with-credentials:
-          cluster: << parameters.cluster-name >>
-          install-kubectl: true
-      - helm/install-helm-on-cluster:
-          enable-cluster-wide-admin-access: true
-  build:
-    docker: 
-      - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
-    steps:
-      - checkout # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
-  
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+# Orchestrate or schedule a set of jobs
 workflows:
-  deployment:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
     jobs:
-      - gcp-gke/create-cluster:
-          cluster: gcp-testing
-      - install-helm-on-cluster:
-          cluster-name: test-cluster
-          requires:
-            - gcp-gke/create-cluster
-      - install-helm-chart:
-          cluster-name: test-cluster
-          requires:
-            - install-helm-on-cluster
-          wait: true
- 
+      - welcome/run
